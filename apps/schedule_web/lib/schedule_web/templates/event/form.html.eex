@@ -1,0 +1,24 @@
+<%= form_for @event, @action, fn f -> %>
+  <%= if @event.action do %>
+    <div event="alert alert-danger">
+      Unfortunately, there are errors in your
+      submission. Please correct them below.
+    </div>
+  <% end %>
+
+  <%= label f, :name %>
+  <%= text_input f, :name %>
+  <%= error_tag f, :name %>
+
+  <%= label f, :location %>
+  <%= text_input f, :location %>
+  <%= error_tag f, :location %>
+
+  <%= label f, :time, "Event begins at" %>
+  <%= datetime_select f, :time, year: [options: 2023..2030] %>
+  <%= error_tag f, :time %>
+
+  <div>
+    <%= submit "Submit" %>
+  </div>
+<% end %>

@@ -1,0 +1,15 @@
+<h1>Events</h1>
+<dt><%= button "New Event", to: Routes.event_path(@conn, :new), method: :get %></dt>
+<br />
+<ul>
+    <%= for event <- @events do %>
+        <li>
+            <strong><%= link event.name, to: Routes.event_path(@conn, :show, event.id) %></strong> at <%= formatted_datetime(event.time) %>
+            <%= if not event.is_signed_up do %>
+                <%= link "Sign up", to: Routes.event_signup_path(@conn, :create, event), method: :post %>
+            <% else %>
+                <%= link "Cancel", to: Routes.event_signup_path(@conn, :delete, event), method: :post %>
+            <% end %>
+        </li>
+    <% end %>
+</ul>

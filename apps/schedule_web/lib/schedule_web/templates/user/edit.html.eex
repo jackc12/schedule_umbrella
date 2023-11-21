@@ -1,0 +1,3 @@
+<h1>User Details</h1>
+
+<%= render "form.html", user: @user, action: Routes.user_path(@conn, :update, @user.data) %>

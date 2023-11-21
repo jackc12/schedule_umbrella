@@ -1,0 +1,18 @@
+# Creates prod db and runs migrations
+FROM elixir:1.7.4-alpine
+
+COPY /config/config.exs /schedule_umbrella/config/config.exs
+COPY /apps/schedule/mix.exs /schedule_umbrella/apps/schedule/mix.exs
+COPY /apps/schedule/config/prod.exs /schedule_umbrella/apps/schedule/config/prod.exs
+COPY /apps/schedule/config/prod.secret.exs /schedule_umbrella/apps/schedule/config/prod.secret.exs
+COPY /apps/schedule/config/config.exs /schedule_umbrella/apps/schedule/config/config.exs
+COPY /apps/schedule/lib/schedule/repo.ex /schedule_umbrella/apps/schedule/lib/schedule/repo.ex
+COPY /apps/schedule/priv/repo/migrations /schedule_umbrella/apps/schedule/priv/repo/migrations
+
+WORKDIR /schedule_umbrella/apps/schedule/
+
+ENV MIX_ENV="prod"
+RUN mix local.hex --force
+RUN mix deps.get ecto
+
+CMD mix do ecto.create, ecto.migrate

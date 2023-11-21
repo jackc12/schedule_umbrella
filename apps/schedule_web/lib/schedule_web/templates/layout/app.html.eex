@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>ScheduleWeb · Phoenix Framework</title>
+    <link rel="stylesheet" href="<%= Routes.static_path(@conn, "/css/app.css") %>"/>
+  </head>
+  <body>
+    <div class="container" style="border-bottom: 1px solid #777777; margin-bottom: 2rem; padding-bottom: 1rem;">
+    <%= if @current_user do %>
+      <strong><%= link "Events", to: Routes.event_path(@conn, :index) %></strong>
+      |
+      <strong><%= link "User Details",
+        to: Routes.user_path(@conn, :edit, @current_user) %></strong>
+      |
+      <strong><%= link "Sign out", to: Routes.session_path(@conn, :delete), method: :delete %></strong>
+    <% else %>
+      <strong><%= link "Events", to: Routes.home_path(@conn, :index) %></strong>
+      |
+      <strong><%= link "Create account", to: Routes.user_path(@conn, :new) %></strong>
+      |
+      <strong><%= link "Log in", to: Routes.session_path(@conn, :new) %></strong>
+    <% end %>
+    </div>
+    <div class="container">
+          <p>This app was built using phoenix which adheres to <strong>MVC Architecture</strong>. Check out the full codebase <strong><%= link "here", to: "https://github.com/jackc12" %></strong>
+          or click on
+          <strong><%= link "Model", to: "https://github.com/jackc12/schedule_umbrella/tree/main/apps/schedule/lib/schedule" %></strong>,
+          <strong><%= link "View", to: "https://github.com/jackc12/schedule_umbrella/tree/main/apps/schedule_web/lib/schedule_web/views" %></strong>,
+          or <strong><%= link "Controller", to: "https://github.com/jackc12/schedule_umbrella/tree/main/apps/schedule_web/lib/schedule_web/controllers" %></strong>
+          to view the code for each individual component</p>
+  </div>
+    <main role="main" class="container">
+      <p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>
+      <p class="alert alert-danger" role="alert"><%= get_flash(@conn, :error) %></p>
+      <%= render @view_module, @view_template, assigns %>
+    </main>
+    <script type="text/javascript" src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
+  </body>
+</html>

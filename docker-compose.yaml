@@ -1,0 +1,53 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: schedule
+    ports:
+      - 5432:5432
+  schedule:
+    image: schedule
+    build:
+      context: ./
+      dockerfile: ./apps/schedule/Dockerfile
+    working_dir: /schedule_umbrella/apps/schedule
+    depends_on:
+      - db
+    volumes:
+      - ./apps/schedule/:/schedule_umbrella/apps/schedule/
+  schedule_web:
+    image: schedule_web
+    build:
+      context: ./
+      dockerfile: ./apps/schedule_web/Dockerfile
+    depends_on:
+      - schedule
+    working_dir: /schedule_umbrella/apps/schedule_web
+    volumes:
+      - ./apps/schedule_web/:/schedule_umbrella/apps/schedule_web/
+      - ./apps/schedule/:/schedule_umbrella/apps/schedule/
+      - ./:/schedule_umbrella
+    ports:
+      - 4000:4000
+
+  schedule_prod:
+    image: schedule_prod
+    build:
+      context: ./
+      dockerfile: Dockerfile-prod
+    depends_on:
+      - schedule_prod_db
+    working_dir: /app
+    ports:
+      - 4001:4001
+  schedule_prod_db:
+    image: schedule_prod_db
+    build:
+      dockerfile: Dockerfile-prod_db
+    depends_on:
+      - db

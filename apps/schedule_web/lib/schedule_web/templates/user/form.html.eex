@@ -1,0 +1,28 @@
+<%= form_for @user, @action, fn f -> %>
+  <%= if @user.action do %>
+    <div event="alert alert-danger">
+      Unfortunately, there are errors in your
+      submission. Please correct them below.
+    </div>
+  <% end %>
+
+  <%= label f, :username %>
+  <%= text_input f, :username %>
+  <%= error_tag f, :username %>
+
+  <%= label f, :email %>
+  <%= email_input f, :email %>
+  <%= error_tag f, :email %>
+
+  <%= label f, :password %>
+  <%= password_input f, :password %>
+  <%= error_tag f, :password %>
+
+  <%= label f, :password_confirmation %>
+  <%= password_input f, :password_confirmation %>
+  <%= error_tag f, :password_confirmation %>
+
+  <div>
+    <%= submit "Update" %>
+  </div>
+<% end %>

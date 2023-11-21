@@ -1,0 +1,39 @@
+<% IO.inspect(@event) %>
+<h1><%= @event.name %></h1>
+<dl>
+  <dt>Time</dt>
+  <dd><%= formatted_datetime(@event.time) %></dd>
+  <br />
+  <dt>Location</dt>
+  <dd><%= @event.location %></dd>
+  <br />
+
+  <dt>Participants</dt>
+  <dd>
+    <%= if @event.participants == [] do %>
+      <p>No one is signed up</p>
+    <% else %>
+      <ul>
+        <%= for participant <- @event.participants do %>
+          <li>
+        <% # Change this to use embedded schema %>
+            <strong><%= participant %></strong>
+          </li>
+        <% end %>
+      </ul>
+    <% end %>
+  </dd>
+  <br />
+  <dt>
+    <%= if @current_user do %>
+      <%= if not @event.is_signed_up do %>
+        <%= button "Sign up", to: Routes.event_signup_path(@conn, :create, @event), method: :post %>
+      <% else %>
+        <%= button "Cancel", to: Routes.event_signup_path(@conn, :delete, @event), method: :post %>
+      <% end %>
+      <%= if @is_owner do %>
+        <%= button "Delete", to: Routes.event_path(@conn, :delete, @event), method: :delete %>
+      <% end %>
+    <% end %>
+  </dt>
+</dl>

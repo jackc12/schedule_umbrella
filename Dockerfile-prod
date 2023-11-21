@@ -1,0 +1,61 @@
+FROM elixir:1.7.4-alpine as builder
+
+# Get tools
+RUN apk update \
+    && apk add bash \
+    && apk add npm --no-cache
+
+WORKDIR /schedule_umbrella
+ENV MIX_ENV="prod"
+
+# Chose this order because assets take a long time to compile and are rearely changed
+# better to cache assets layer
+
+# Get deps
+COPY /mix.exs mix.exs
+COPY /apps/schedule_web/mix.exs /schedule_umbrella/apps/schedule_web/mix.exs
+COPY /apps/schedule/mix.exs /schedule_umbrella/apps/schedule/mix.exs
+
+RUN mix do local.hex --force, local.rebar --force
+RUN mix deps.get --only prod
+
+#compile assets
+COPY /apps/schedule_web/assets /schedule_umbrella/apps/schedule_web/assets
+
+RUN cd apps/schedule_web/assets/ \
+    && npm install \
+    && ./node_modules/.bin/webpack --mode production
+
+# Compile app
+COPY /apps/schedule_web/lib /schedule_umbrella/apps/schedule_web/lib
+COPY /apps/schedule/lib /schedule_umbrella/apps/schedule/lib
+COPY /config/config.exs /schedule_umbrella/config/config.exs
+COPY /apps/schedule_web/config/prod.exs /schedule_umbrella/apps/schedule_web/config/prod.exs
+COPY /apps/schedule_web/config/config.exs /schedule_umbrella/apps/schedule_web/config/config.exs
+COPY /apps/schedule_web/config/prod.secret.exs /schedule_umbrella/apps/schedule_web/config/prod.secret.exs
+COPY /apps/schedule/config/prod.exs /schedule_umbrella/apps/schedule/config/prod.exs
+COPY /apps/schedule/config/config.exs /schedule_umbrella/apps/schedule/config/config.exs
+COPY /apps/schedule/config/prod.secret.exs /schedule_umbrella/apps/schedule/config/prod.secret.exs
+
+# Compile app
+RUN mix compile
+
+# Compress static files
+RUN mix phx.digest
+
+COPY /apps/schedule/priv/repo/migrations/ /schedule_umbrella/apps/schedule/priv/repo/migrations/ 
+
+RUN mix distillery.init
+RUN mix distillery.release
+
+FROM elixir:1.7.4-alpine
+RUN apk update \ 
+    && apk add bash
+
+ENV MIX_ENV="prod"
+COPY --from=builder /schedule_umbrella/_build/${MIX_ENV}/rel/schedule_umbrella /app/
+
+WORKDIR /app
+
+CMD bin/schedule_umbrella eval "Schedule.Release.migrate" \
+    && PORT=4001 bin/schedule_umbrella foreground

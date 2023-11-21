@@ -1,0 +1,12 @@
+<h1>Events Demo App</h1>
+<%= if @current_user == nil do %>
+    <p><strong><%= link "Log in", to: Routes.session_path(@conn, :new) %></strong> or <strong><%= link "Create account", to: Routes.user_path(@conn, :new) %></strong> to create and sign up for events.
+    If you don't want to create an account you can sign in with <strong>username: guest, password: guest</strong></p>
+<% end %>
+<ul>
+    <%= for event <- @events do %>
+        <li>
+            <strong><%= link event.name, to: Routes.event_path(@conn, :show, event.id) %></strong> at <%= formatted_datetime(event.time) %>
+        </li>
+    <% end %>
+</ul>
